@@ -1,3 +1,7 @@
+# Arquivo: YoutubeMP3Downloader.py
+# Autor: Guilherme Cugler
+# Descrição: Este é um script Python simples que baixar MP3 do Youtube
+
 import customtkinter as ctk
 import yt_dlp as youtube_dl
 import threading
