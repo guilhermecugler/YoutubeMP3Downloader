@@ -10,10 +10,20 @@ import os
 import pyperclip
 from tkinter import filedialog
 import sys
-# Caminho para a pasta ffmpeg no projeto
+
+# Caminho relativo para utilizar pyinstaller --one-file
 
 
 def resource_path(relative_path):
+    """Obtém caminho relativo de um arquivo
+
+    Args:
+        relative_path (str): Nome do arquivo
+
+    Returns:
+        str: Caminho relativo do arquivo
+    """
+
     if hasattr(sys, '_MEIPASS'):
         print(os.path.join(sys._MEIPASS, relative_path))
         return os.path.join(sys._MEIPASS, relative_path)
@@ -22,9 +32,6 @@ def resource_path(relative_path):
 
 
 FFMPEG_PATH = resource_path("ffmpeg")
-
-
-# Pasta de destino dos downloads
 DOWNLOAD_FOLDER = os.getcwd()
 DEFAULT_DOWNLOAD_FOLDER = os.getcwd()
 
@@ -32,16 +39,39 @@ if os.path.basename(os.getcwd()) == "Arquivos de Programas":
     DEFAULT_DOWNLOAD_FOLDER = os.path.join(os.path.expanduser("~"), "Music")
 
 
-def truncate_title(title, length=50):
+def truncate_title(title, length=30):
+    """Corta tamanho de títulos grandes
+
+    Args:
+        title (str): Título do video
+        length (int, optional): Tamanho de caracteres para retornar. Defaults to 30.
+
+    Returns:
+        str: Título do video cortado
+    """
     if len(title) > length:
         return title[:length] + '...'
     return title
 
 
 def download_audio(yt_url, progress_bar, status_label, title_label, remove_info, download_folder):
+    """Faz download do video do youtube e transforma em mp3
+
+    Args:
+        yt_url (str): Url do video
+        progress_bar (CTkProgressbar): Barra de progresso
+        status_label (CTkLabel): Label de status
+        title_label (CTkLabel): Label de título do video
+        remove_info (Boolean): Remover da tela após concluído
+        download_folder (str): Diretório de download
+    """
+
     def progress_hook(d):
         if d['status'] == 'finished':
             progress_bar.set(1)
+            status_label.configure("Download concluído")
+            title_label.configure("Download concluído")
+
             if remove_info.get():
                 status_label.destroy()
                 title_label.destroy()
@@ -80,6 +110,9 @@ def download_audio(yt_url, progress_bar, status_label, title_label, remove_info,
                 status_label.configure(
                     text="O arquivo já foi baixado anteriormente.")
                 progress_bar.set(1)
+                title_label.configure(
+                    text=f"Download concluído: {truncated_title}")
+
                 if remove_info.get():
                     status_label.destroy()
                     title_label.destroy()
@@ -92,6 +125,11 @@ def download_audio(yt_url, progress_bar, status_label, title_label, remove_info,
 
 
 def start_download(remove_info):
+    """Incia uma thread para baixar um áudio a partir do label de URL
+
+    Args:
+        remove_info (Boolean): Remover dados da tela após download concluído
+    """
     yt_url = url_entry.get()
     if yt_url:
         status_label = ctk.CTkLabel(frame, text="Baixando...")
@@ -112,6 +150,11 @@ def start_download(remove_info):
 
 
 def download_from_clipboard(remove_info):
+    """Inicia uma thread para baixar áudio a partir da URL Copiada
+
+    Args:
+        remove_info (Boolean): Remover dados da tela após download concluído
+    """
     yt_url = pyperclip.paste()
     if yt_url:
         status_label = ctk.CTkLabel(frame, text="Baixando...")
@@ -133,6 +176,11 @@ def download_from_clipboard(remove_info):
 
 
 def change_appearance_mode_event(new_appearance_mode):
+    """Alterar tema da interface
+
+    Args:
+        new_appearance_mode (str): Nome do tema
+    """
     if new_appearance_mode == "Escuro":
         new_appearance_mode = "Dark"
     if new_appearance_mode == "Claro":
@@ -144,38 +192,33 @@ def change_appearance_mode_event(new_appearance_mode):
 
 
 def select_download_folder():
+    """Seleciona a pasta de download dos arquivos
+    """
     download_folder = filedialog.askdirectory()
     download_folder_entry.delete(0, tk.END)
     download_folder_entry.insert(0, download_folder)
 
 
-# Configuração da interface
 app = ctk.CTk()
-
 
 app.title("Youtube MP3 Downloader")
 app.iconbitmap(resource_path("icon.ico"))
 
 app.resizable(width=False, height=False)
-# ctk.set_default_color_theme("red_theme.json")
 
 appearance_mode_menu = ctk.CTkOptionMenu(app, values=["Sistema", "Escuro", "Claro"],
                                          command=change_appearance_mode_event)
 appearance_mode_menu.pack(padx=10, pady=(10, 0), anchor="e")
 
-
 frame = ctk.CTkScrollableFrame(app, width=400, height=350)
 frame.pack(pady=20, padx=20)
 
-# Entrada de URL
 url_label = ctk.CTkLabel(frame, text="Insira a URL do YouTube:")
 url_label.pack(pady=10)
 
 url_entry = ctk.CTkEntry(frame, width=400)
 url_entry.pack(pady=10, padx=20)
 
-
-# Seleção de pasta de download
 download_folder_label = ctk.CTkLabel(
     frame, text="Selecione a pasta de destino:")
 download_folder_label.pack(pady=5)
@@ -188,22 +231,17 @@ select_folder_button = ctk.CTkButton(
     frame, text="Selecionar Pasta", command=select_download_folder)
 select_folder_button.pack(pady=5)
 
-# Botão de Download
 download_button = ctk.CTkButton(
     frame, text="Baixar MP3", command=lambda: start_download(remove_info_var))
 download_button.pack(pady=10)
 
-# Botão para baixar a partir da área de transferência
 clipboard_button = ctk.CTkButton(
     frame, text="Baixar da URL Copiada", command=lambda: download_from_clipboard(remove_info_var))
 clipboard_button.pack(pady=10)
 
-# Checkbox para remover informações
 remove_info_var = tk.BooleanVar()
 remove_info_checkbox = ctk.CTkCheckBox(
     frame, text="Remover da tela após download concluído", variable=remove_info_var)
 remove_info_checkbox.pack(pady=5)
 
-
-# Inicializa a interface
 app.mainloop()
