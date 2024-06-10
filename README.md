@@ -1,5 +1,5 @@
 # 🎵 Youtube MP3 Downloader
-![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https://github.com/{owner}/{repo}&title=View%20Count)
+![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https://github.com/guilhermecugler/YoutubeMP3Downloader&title=View%20Count)
 
 ![Python](https://img.shields.io/badge/Python-3.x-blue.svg)
 ![CustomTkinter](https://img.shields.io/badge/CustomTkinter-v5.0.3-blue)
